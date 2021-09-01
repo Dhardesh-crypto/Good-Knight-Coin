@@ -1,4 +1,5 @@
 import Phaser from 'phaser'
+import Moralis from 'moralis'
 
 import KnightSpawner from './KnightSpawner'
 import PlatformSpawner from './PlatformSpawner'
@@ -8,8 +9,9 @@ import ScoreLabel from '../ui/ScoreLabel'
 import LivesLabel from '../ui/LivesLabel'
 import SkullSpawner from './SkullSpawner'
 import GameOverSpawner from './GameOverSpawner'
+import MoralisScoreSavedLabel from '../ui/MoralisScoreSavedLabel'
 
-const Moralis = require('moralis');
+// const Moralis = require('moralis');
 
 const BACKGROUND_KEY = 'background';
 const GROUND_KEY = 'ground';
@@ -32,12 +34,10 @@ const AUDIO_BACKGROUND_MUSIC_ONE = 'bgmOne';
 const AUDIO_BACKGROUND_MUSIC_TWO = 'bgmTwo';
 const AUDIO_BACKGROUND_MUSIC_THREE = 'bgmThree';
 
-var user;
-
 // connect to Moralis server
-Moralis.initialize("NONE OF YOUR BUSINESS");
-Moralis.serverURL = "NOT GIVING YOU THIS ONE MATES";
-
+Moralis.initialize("GO GET YOUR OWN SERVER");
+Moralis.serverURL = "HTTP GO GET YOUR OWN SERVER";
+            
 export default class GameScene extends Phaser.Scene
 {
     constructor() 
@@ -75,6 +75,8 @@ export default class GameScene extends Phaser.Scene
         this.jumpHeight = -400;
         this.gameOver = false;
         this.userAccount = undefined;
+
+        this.moralisScoreSavedLabel = undefined;
 
 
     }
@@ -310,18 +312,18 @@ export default class GameScene extends Phaser.Scene
             if (this.toggleMusic) { this.backgroundMusic.stop(); }
             if (this.toggleMusic) { this.gameOverFunny.play(); }
 
-            
             let auth = await Moralis.Web3.authenticate();
-            console.log("auth = " + auth.get('ethAddress'));
-            const userAddr = auth.get('ethAddress');
+            const userAddress = auth.get('ethAddress');
+            console.log(userAddress);
             const GoodKnightScore = Moralis.Object.extend("GoodKnightScore");
             const goodKnightScore = new GoodKnightScore();
-            goodKnightScore.set("sender" + userAddr);
+//            goodKnightScore.set("sender_session", moralisUser.id);
+            goodKnightScore.set("sender", userAddress);
             goodKnightScore.set("score", this.score);
-            console.log(userAddr + " scored " + this.score);
+            console.log(userAddress + " scored " + this.score);
             let result = await goodKnightScore.save();
             console.log(goodKnightScore);
-            alert('New object created with objectId: ' + result.id);
+            this.moralisScoreSavedLabel = this.createMoralisScoreSavedLabel(16 ,84, result.id)
     
         }
         else {
@@ -351,5 +353,15 @@ export default class GameScene extends Phaser.Scene
 
 		return label
 	}
+
+    createMoralisScoreSavedLabel(x, y, objectID) 
+    {
+        const style = { fontSize: '32px', fill: '#fff' }
+		const label = new MoralisScoreSavedLabel(this, x, y, objectID, style)
+
+		this.add.existing(label)
+
+		return label
+    }
 
 }
