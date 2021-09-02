@@ -14,6 +14,8 @@ import MoralisScoreSavedLabel from '../ui/MoralisScoreSavedLabel'
 // const Moralis = require('moralis');
 
 const BACKGROUND_KEY = 'background';
+const SCORE_BACKGROUND_KEY = 'scoreBackground';
+const LIVES_BACKGROUND_KEY = 'livesBackground';
 const GROUND_KEY = 'ground';
 const GROUND_LEFT_KEY = 'groundLeft';
 const GROUND_RIGHT_KEY = 'groundRight';
@@ -35,8 +37,8 @@ const AUDIO_BACKGROUND_MUSIC_TWO = 'bgmTwo';
 const AUDIO_BACKGROUND_MUSIC_THREE = 'bgmThree';
 
 // connect to Moralis server
-Moralis.initialize("GO GET YOUR OWN SERVER");
-Moralis.serverURL = "HTTP GO GET YOUR OWN SERVER";
+Moralis.initialize("GET YOUR OWN ID");
+Moralis.serverURL = "GET YOUR OWN SERVER";
             
 export default class GameScene extends Phaser.Scene
 {
@@ -85,6 +87,8 @@ export default class GameScene extends Phaser.Scene
     {
 //        this.load.image(BACKGROUND_KEY, 'assets/BGHills.jpg');
         this.load.image(BACKGROUND_KEY, 'assets/BG.png');
+        this.load.image(SCORE_BACKGROUND_KEY, 'assets/Score_Background.png');
+        this.load.image(LIVES_BACKGROUND_KEY, 'assets/Lives_Background.png');
         this.load.image(GROUND_KEY, 'assets/Tile (2).png');
         this.load.image(GROUND_LEFT_KEY, 'assets/Tile (1).png');
         this.load.image(GROUND_RIGHT_KEY, 'assets/Tile (3).png');
@@ -94,9 +98,9 @@ export default class GameScene extends Phaser.Scene
             'assets/Knight.png',
             { frameWidth: 181, frameHeight: 244 }
         );
-        this.load.image(TREE_KEY, 'assets/Tree.png');
-        this.load.image(BUSH_ONE_KEY, 'assets/Bush (1).png');
-        this.load.image(BUSH_TWO_KEY, 'assets/Bush (2).png');
+        this.load.image(TREE_KEY, 'assets/Tree_lit.png');
+        this.load.image(BUSH_ONE_KEY, 'assets/Bush (1)_lit.png');
+        this.load.image(BUSH_TWO_KEY, 'assets/Bush (2)_lit.png');
         this.load.image(GAME_OVER_KEY, 'assets/gameover.png');
 
         this.load.audio(AUDIO_COLLECT_COIN, [ 'assets/collectCoin.wav', 'assets/collectCoin.wav' ]);
@@ -114,6 +118,8 @@ export default class GameScene extends Phaser.Scene
     create() 
     {
             this.background = this.add.image(0, 800, BACKGROUND_KEY).setOrigin(0,1);
+            this.scoreBackground = this.add.image(70,33, SCORE_BACKGROUND_KEY).setScale(0.4);
+            this.livesBackground = this.add.image(70,83, LIVES_BACKGROUND_KEY).setScale(0.4);
 
             this.platformSpawner = new PlatformSpawner(this, GROUND_KEY, GROUND_LEFT_KEY, GROUND_RIGHT_KEY);
             this.platforms = this.platformSpawner.spawn();
@@ -140,8 +146,8 @@ export default class GameScene extends Phaser.Scene
 
             this.cursors = this.input.keyboard.createCursorKeys();
 
-            this.scoreLabel = this.createScoreLabel(16, 16, 0);
-            this.livesLabel = this.createLivesLabel(16, 50, 2);
+            this.scoreLabel = this.createScoreLabel(63, 16, 0);
+            this.livesLabel = this.createLivesLabel(63, 67, 2);
 
             this.skullSpawner = new SkullSpawner(this, SKULL_KEY);
             const skullGroup = this.skullSpawner.group;
@@ -324,6 +330,8 @@ export default class GameScene extends Phaser.Scene
             let result = await goodKnightScore.save();
             console.log(goodKnightScore);
             this.moralisScoreSavedLabel = this.createMoralisScoreSavedLabel(16 ,84, result.id)
+ 
+            this.scene.start('game-over');
     
         }
         else {
