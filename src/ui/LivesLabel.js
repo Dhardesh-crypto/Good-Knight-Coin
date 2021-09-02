@@ -1,6 +1,6 @@
 import Phaser from 'phaser'
 
-const formatLives = (lives) => `Lives: ${lives}`
+const formatLives = (lives) => `${lives}`
 
 export default class LiveLabel extends Phaser.GameObjects.Text
 {
